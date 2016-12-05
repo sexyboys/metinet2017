@@ -31,7 +31,8 @@ class Request
             }
         }
 
-        parse_str($_SERVER['QUERY_STRING'], $queryParameters);
+        $queryParameters = [];
+        parse_str($_SERVER['QUERY_STRING'] ?? "", $queryParameters);
         $path = explode('?', $_SERVER['REQUEST_URI'])[0];
 
         $request = new Request(
