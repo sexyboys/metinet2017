@@ -16,6 +16,16 @@ class Response
         $this->headers    = $headers;
     }
 
+    public static function notFound($body, array $headers)
+    {
+        return new self(404, $body, $headers);
+    }
+
+    public static function success($body, $headers)
+    {
+        return new self(200, $body, $headers);
+    }
+
     public function getStatusCode()
     {
         return $this->statusCode;
@@ -29,5 +39,15 @@ class Response
     public function getHeaders()
     {
         return $this->headers;
+    }
+
+    public function send()
+    {
+        foreach ($this->headers as $header) {
+            header((string) $header);
+        }
+        http_response_code($this->statusCode);
+
+        echo $this->body;
     }
 }
