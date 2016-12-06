@@ -18,4 +18,9 @@ class PhoneNumber
     {
         return $this->phoneNumber;
     }
+
+    public function isEqual(PhoneNumber $phoneNumber)
+    {
+        return $this->phoneNumber === $phoneNumber->phoneNumber;
+    }
 }

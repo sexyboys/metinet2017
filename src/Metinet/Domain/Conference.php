@@ -27,6 +27,18 @@ class Conference
         $this->attendees[] = $attendee;
     }
 
+    public function cancelReservation(Attendee $attendee)
+    {
+        foreach ($this->attendees as $index => $registeredAttendee) {
+            if ($registeredAttendee->isEqual($attendee)) {
+                unset($this->attendees[$index]);
+                return;
+            }
+        }
+
+        throw new AttendeeReservationNotFound($attendee);
+    }
+
     public function getTitle()
     {
         return $this->title;

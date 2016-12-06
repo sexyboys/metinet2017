@@ -32,4 +32,13 @@ class Attendee
     {
         return $this->phoneNumber;
     }
+
+    public function isEqual(self $attendee)
+    {
+        return (
+            $this->firstName === $attendee->firstName
+            && $this->lastName === $attendee->lastName
+            && $this->phoneNumber->isEqual($attendee->phoneNumber)
+        );
+    }
 }

@@ -6,6 +6,7 @@
 namespace Metinet\Controllers;
 
 use Metinet\Domain\Attendee;
+use Metinet\Domain\AttendeeReservationNotFound;
 use Metinet\Domain\MaxAttendeesReached;
 use Metinet\Domain\PhoneNumber;
 use Metinet\Domain\Conference;
@@ -33,12 +34,16 @@ class ConferenceController
             new \DateTimeImmutable('2016-12-06 14:00')
         );
 
-        $conference->registerAttendee(new Attendee('Boris', 'Guéry', new PhoneNumber('+33686830312')));
         try {
+            $conference->registerAttendee(new Attendee('Boris', 'Guéry', new PhoneNumber('+33686830312')));
+            $conference->cancelReservation(new Attendee('Boris', 'Guéry', new PhoneNumber('+33686830312')));
             $conference->registerAttendee(new Attendee('Boris', 'Guéry', new PhoneNumber('+33686830312')));
         } catch (MaxAttendeesReached $e) {
 
             return new Response(400, "Le nombre d'invité maximum est atteint", []);
+        } catch (AttendeeReservationNotFound $e) {
+
+            return new Response(400, $e->getMessage(), []);
         }
 
         return Response::success(var_export($conference, true), []);
