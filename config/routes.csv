@@ -1,2 +1,3 @@
-GET;/calculator/addition;Metinet\CalculatorController::addition
-GET;/calculator/subtraction;Metinet\CalculatorController::subtraction
+GET;/calculator/addition;Metinet\Controllers\CalculatorController::addition
+GET;/calculator/subtraction;Metinet\Controllers\CalculatorController::subtraction
+GET;/conferences;Metinet\Controllers\ConferenceController::listConferences

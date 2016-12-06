@@ -7,9 +7,10 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use Metinet\Http\Request;
 use Metinet\Http\Response;
-use Metinet\CalculatorController;
-use Metinet\Route;
-use Metinet\RouteMatcher;
+use Metinet\Controllers\CalculatorController;
+use Metinet\Controllers\ConferenceController;
+use Metinet\Routing\Route;
+use Metinet\Routing\RouteMatcher;
 use Metinet\ControllerResolver;
 use Metinet\Config\Configuration;
 use Metinet\Config\RoutesCsvLoader;
@@ -31,8 +32,11 @@ foreach ($configuration->getSection('routes') as $route) {
 
 $base = $configuration->getSection('parameters')['calculator']['base'];
 $controllers[] = new CalculatorController($base);
+$controllers[] = new ConferenceController();
 $resolver = new ControllerResolver(new RouteMatcher($routes));
-$resolver->addController(new CalculatorController(16));
+foreach ($controllers as $controller) {
+    $resolver->addController($controller);
+}
 $callable = $resolver->resolve($request);
 $response = call_user_func($callable, $request);
 $response->send();

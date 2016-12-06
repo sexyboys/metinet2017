@@ -6,6 +6,7 @@
 namespace Metinet;
 
 use Metinet\Http\Request;
+use Metinet\Routing\RouteMatcher;
 
 class ControllerResolver
 {

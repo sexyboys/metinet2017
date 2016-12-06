@@ -1,6 +1,6 @@
 <?php
 
-namespace Metinet;
+namespace Metinet\Controllers;
 
 use Metinet\Http\Request;
 use Metinet\Http\Response;

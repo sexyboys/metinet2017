@@ -3,7 +3,7 @@
  * @author Boris Guéry <guery.b@gmail.com>
  */
 
-namespace Metinet;
+namespace Metinet\Routing;
 
 use Metinet\Http\Request;
 

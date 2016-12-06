@@ -1,6 +1,6 @@
 <?php
 
-namespace Metinet;
+namespace Metinet\Routing;
 
 /**
  * @author Boris Guéry <guery.b@gmail.com>
