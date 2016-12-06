@@ -1,0 +1,2 @@
+GET;/calculator/addition;Metinet\CalculatorController::addition
+GET;/calculator/subtraction;Metinet\CalculatorController::subtraction

@@ -1,0 +1,11 @@
+parameters:
+  calculator:
+    base: 16
+
+Yaml::parse($filename)
+$yaml = [
+  'parameters' =>
+    [
+      'calculator' => 16
+    ]
+];
