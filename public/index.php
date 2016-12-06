@@ -25,4 +25,5 @@ $controllers[] = new CalculatorController(16);
 $resolver = new \Metinet\ControllerResolver(new RouteMatcher($routes));
 $resolver->addController(new CalculatorController(16));
 $callable = $resolver->resolve($request);
-call_user_func($callable, $request);
+$response = call_user_func($callable, $request);
+$response->send();

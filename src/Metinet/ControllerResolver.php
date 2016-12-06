@@ -24,14 +24,14 @@ class ControllerResolver
             $this->matcher->match($request)
         );
 
-        $controllers = [];
-
-        foreach ($controllers as $controller) {
-            if ((get_class($controller) === $matchedController)) {
+        foreach ($this->controllers as $controller) {
+            if (get_class($controller) === $matchedController) {
 
                 return [$controller, $matchedAction];
             }
         }
+
+        throw new ControllerNotFound($matchedController);
     }
 
     public function addController($controllerInstance)
