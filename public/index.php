@@ -10,6 +10,7 @@ use Metinet\Http\Response;
 use Metinet\CalculatorController;
 use Metinet\Route;
 use Metinet\RouteMatcher;
+use Metinet\ControllerResolver;
 
 $request = Request::createFromGlobals();
 
@@ -20,9 +21,14 @@ $routes[] = new Route(
     '/calculator/addition',
     sprintf('%s::%s', CalculatorController::class, 'addition')
 );
+$routes[] = new Route(
+    'GET',
+    '/calculator/subtraction',
+    sprintf('%s::%s', CalculatorController::class, 'subtraction')
+);
 
 $controllers[] = new CalculatorController(16);
-$resolver = new \Metinet\ControllerResolver(new RouteMatcher($routes));
+$resolver = new ControllerResolver(new RouteMatcher($routes));
 $resolver->addController(new CalculatorController(16));
 $callable = $resolver->resolve($request);
 $response = call_user_func($callable, $request);

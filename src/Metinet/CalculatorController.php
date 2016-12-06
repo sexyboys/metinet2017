@@ -24,4 +24,12 @@ class CalculatorController
 
         return Response::success(base_convert($a + $b, 10, $this->base), ['Content-Type' => 'text/plain']);
     }
+
+    public function subtraction(Request $request)
+    {
+        $a = $request->getQueryParameters()['a'];
+        $b = $request->getQueryParameters()['b'];
+
+        return Response::success(base_convert($a - $b, 10, $this->base), ['Content-Type' => 'text/plain']);
+    }
 }
