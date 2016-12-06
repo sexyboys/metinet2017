@@ -1,5 +1,7 @@
 <?php
 
+namespace Metinet\Http;
+
 /**
  * @author Boris Guéry <guery.b@gmail.com>
  */

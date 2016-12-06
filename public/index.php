@@ -5,11 +5,24 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
+use Metinet\Http\Request;
+use Metinet\Http\Response;
+use Metinet\CalculatorController;
+use Metinet\Route;
+use Metinet\RouteMatcher;
+
 $request = Request::createFromGlobals();
 
-$calculatorController = new CalculatorController();
+/** @var Route[] $routes */
+$routes = [];
+$routes[] = new Route(
+    'GET',
+    '/calculator/addition',
+    sprintf('%s::%s', CalculatorController::class, 'addition')
+);
 
-if ('GET' === $request->getMethod() && $request->getPath() === '/calculator/addition') {
-    $response = $calculatorController->addition($request);
-    $response->send();
-}
+$controllers[] = new CalculatorController(16);
+$resolver = new \Metinet\ControllerResolver(new RouteMatcher($routes));
+$resolver->addController(new CalculatorController(16));
+$callable = $resolver->resolve($request);
+call_user_func($callable, $request);
