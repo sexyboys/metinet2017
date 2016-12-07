@@ -7,6 +7,8 @@ namespace Metinet\Controllers;
 
 use Metinet\Domain\Attendee;
 use Metinet\Domain\AttendeeReservationNotFound;
+use Metinet\Domain\ConferenceFactory;
+use Metinet\Domain\FakeSmsSender;
 use Metinet\Domain\MaxAttendeesReached;
 use Metinet\Domain\PaymentMean;
 use Metinet\Domain\PaymentTransaction;
@@ -16,19 +18,32 @@ use Metinet\Domain\Location;
 use Metinet\Domain\PostalAddress;
 use Metinet\Domain\Price;
 use Metinet\Domain\Reservation;
+use Metinet\Domain\ReservationAttempt;
+use Metinet\Domain\ReservationService;
+use Metinet\Domain\Sms;
 use Metinet\Domain\Speaker;
+use Metinet\Domain\UnableToReserve;
 use Metinet\Http\Request;
 use Metinet\Http\Response;
+use Metinet\Repositories\ConferenceNotFound;
 use Metinet\Repositories\InMemoryConferenceRepository;
 
 class ConferenceController
 {
-    public function listConferences(Request $request)
-    {
-        $conferenceId = uniqid();
+    private $conferenceRepository;
+    private $reservationService;
 
-        $conference = new Conference(
-            $conferenceId,
+    public function __construct()
+    {
+        $conferenceRepository = new InMemoryConferenceRepository();
+        $smsSender = new FakeSmsSender();
+        $reservationService = new ReservationService($conferenceRepository, $smsSender);
+
+        $this->conferenceRepository = $conferenceRepository;
+        $this->reservationService = $reservationService;
+
+        $this->conferenceRepository->add(new Conference(
+            '1234567890',
             'La programmation orientée objet',
             1,
             new Location(
@@ -43,74 +58,99 @@ class ConferenceController
             new \DateTimeImmutable('2016-12-06 14:00'),
             new Price(100),
             [new Speaker('Boris', 'Guéry', 'Blablablabla')]
-        );
-
-        $conferenceRepository = new InMemoryConferenceRepository();
-        $conferenceRepository->add($conference);
-
-        $conference = $conferenceRepository->get($conferenceId);
-
-        $conference->reserve(new Reservation(
-            new Attendee('Boris', 'Guéry', new PhoneNumber('+33686830312')),
-            PaymentTransaction::successful(uniqid(), new Price(100), PaymentMean::CREDIT_CARD)
         ));
-
-        $conferenceRepository->update($conference);
-
-        unset($conference);
-
-        $conference = $conferenceRepository->get($conferenceId);
-
-
-        return Response::success("", ['Content-Type' => 'text/plain']);
     }
 
-    public function test(Request $request)
+    public function reserve(Request $request)
     {
-        $conference = new Conference(
-            uniqid(),
-            'La programmation orientée objet',
-            1,
-            new Location(
-                'Salle LP Metinet',
-                new PostalAddress(
-                    '21, rue Peter Fink',
-                    '01000',
-                    'Bourg-en-Bresse',
-                    'France'
-                )
-            ),
-            new \DateTimeImmutable('2016-12-06 14:00'),
-            new Price(100),
-            [new Speaker('Boris', 'Guéry', 'Blablablabla')]
+        $body = http_build_query([
+            'conferenceId' => '1234567890',
+            'firstName'    => 'Boris',
+            'lastName'     => 'Guéry',
+            'phoneNumber'  => '+33686830312'
+        ]);
+        $request = new Request('POST', '/conferences/reserve', [], [], $body);
+
+        parse_str($request->getBody(), $data);
+
+        $attendee = new Attendee($data['firstName'], $data['lastName'], new PhoneNumber($data['phoneNumber']));
+        $paymentTransaction = PaymentTransaction::successful(uniqid(), new Price(100), PaymentMean::CREDIT_CARD);
+
+        $reservationAttempt = new ReservationAttempt(
+            $attendee,
+            $paymentTransaction,
+            $data['conferenceId']
         );
 
-        // service de payment
-
         try {
-            $conference->reserve(new Reservation(
-                new Attendee('Boris', 'Guéry', new PhoneNumber('+33686830312')),
-                PaymentTransaction::successful(uniqid(), new Price(100), PaymentMean::CREDIT_CARD)
-            ));
+            $this->reservationService->reserve($reservationAttempt);
+        } catch (UnableToReserve $e) {
+            return Response::success($e->getMessage(), []);
+        }
 
-            $conference->reserve(new Reservation(
-                new Attendee('John', 'Doe', new PhoneNumber('+33686830312')),
-                PaymentTransaction::pendingApproval(new Price(100), PaymentMean::WIRE_TRANSFER)
-            ));
+        return Response::success("Reservation successful", []);
+    }
 
-            $conference->cancelReservation(new Attendee('Boris', 'Guéry', new PhoneNumber('+33686830312')));
-            $conference->reserve(new Reservation(
-                new Attendee('Boris', 'Guéry', new PhoneNumber('+33686830312')),
-                PaymentTransaction::successful(uniqid(), new Price(100), PaymentMean::CREDIT_CARD)
-            ));
-        } catch (MaxAttendeesReached $e) {
+    public function view(Request $request)
+    {
+        $conferenceId = $request->getQueryParameters()['conferenceId'];
+        try {
+            $conference = $this->conferenceRepository->get($conferenceId);
+        } catch (ConferenceNotFound $e) {
 
-            return new Response(400, "Le nombre d'invité maximum est atteint", []);
-        } catch (AttendeeReservationNotFound $e) {
-
-            return new Response(400, $e->getMessage(), []);
+            return Response::notFound(sprintf("Conference %s not found.", $conferenceId), []);
         }
 
         return Response::success(var_export($conference, true), []);
+    }
+
+    public function addConference(Request $request)
+    {
+        $body = [
+            'title' => 'La programmation orientée objet',
+            'maxAttendees' => 1,
+            'location' => [
+                'placeName' => 'LP Metinet',
+                'postalAddress' => [
+                    'street' => '21, rue Peter Fink',
+                    'postalCode' => '01000',
+                    'city' => 'Bourg-en-Bresse',
+                    'country' => 'France',
+                ],
+            ],
+            'date' => '2016-12-25T20:00:00',
+            'price' => 10000,
+            'speakers' => [
+                [
+                    'firstName' => 'Boris',
+                    'lastName'  => 'Guéry',
+                    'description' => 'blalbalba',
+                ]
+            ]
+        ];
+        $request = new Request('POST', '/conferences/add', [], [], $body);
+
+        $data = $request->getBody();
+        unset($data['id']);
+        $data['id'] = uniqid();
+
+        $conference = ConferenceFactory::fromArray($data);
+
+        $this->conferenceRepository->add($conference);
+        $conference = $this->conferenceRepository->get($data['id']);
+
+        return Response::success(var_export($conference, true), []);
+    }
+
+    public function listConferences(Request $request)
+    {
+        $conferences = $this->conferenceRepository->all();
+
+        $body = "";
+        foreach ($conferences as $conference) {
+            $body .= "\n\n" . var_export($conference, true);
+        }
+
+        return Response::success($body, ['Content-Type' => 'text/plain']);
     }
 }

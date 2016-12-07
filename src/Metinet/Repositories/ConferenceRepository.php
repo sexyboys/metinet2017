@@ -9,8 +9,13 @@ use Metinet\Domain\Conference;
  */
 interface ConferenceRepository
 {
+    /**
+     * @param $id
+     * @return Conference
+     */
     public function get($id);
     public function delete(Conference $conference);
     public function update(Conference $conference);
     public function add(Conference $conference);
+    public function all();
 }

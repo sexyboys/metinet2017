@@ -11,6 +11,11 @@ class InMemoryConferenceRepository implements ConferenceRepository
 {
     private $conferences = [];
 
+    /**
+     * @param $id
+     * @return Conference
+     * @throws ConferenceNotFound
+     */
     public function get($id)
     {
         if (!isset($this->conferences[$id])) {
@@ -49,5 +54,10 @@ class InMemoryConferenceRepository implements ConferenceRepository
         }
 
         $this->conferences[$conference->getId()] = $conference;
+    }
+
+    public function all()
+    {
+        return $this->conferences;
     }
 }

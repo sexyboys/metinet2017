@@ -1,3 +1,6 @@
 GET;/calculator/addition;Metinet\Controllers\CalculatorController::addition
 GET;/calculator/subtraction;Metinet\Controllers\CalculatorController::subtraction
 GET;/conferences;Metinet\Controllers\ConferenceController::listConferences
+GET;/conferences/view;Metinet\Controllers\ConferenceController::view
+GET;/conferences/reserve;Metinet\Controllers\ConferenceController::reserve
+GET;/conferences/add;Metinet\Controllers\ConferenceController::addConference
