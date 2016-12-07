@@ -11,27 +11,31 @@ class Conference
     private $maxAttendees;
     private $location;
     private $date;
-    private $attendees = [];
+    private $reservations = [];
+    private $price;
+    private $speakers = [];
 
-    public function __construct(string $title, int $maxAttendees, Location $location, \DateTimeImmutable $date)
+    public function __construct(string $title, int $maxAttendees, Location $location,
+        \DateTimeImmutable $date, Price $price, array $speakers)
     {
         $this->title        = $title;
         $this->maxAttendees = $maxAttendees;
         $this->location     = $location;
         $this->date         = $date;
+        $this->price        = $price;
+        $this->speakers     = $speakers;
     }
 
-    public function registerAttendee(Attendee $attendee)
+    public function reserve(Reservation $reservation)
     {
-        $this->ensureConferenceHasNotBeenReachedMaxAttendees();
-        $this->attendees[] = $attendee;
+        $this->reservations[] = $reservation;
     }
 
     public function cancelReservation(Attendee $attendee)
     {
-        foreach ($this->attendees as $index => $registeredAttendee) {
-            if ($registeredAttendee->isEqual($attendee)) {
-                unset($this->attendees[$index]);
+        foreach ($this->reservations as $index => $reservation) {
+            if ($reservation->getAttendee()->isEqual($attendee)) {
+                unset($this->reservations[$index]);
                 return;
             }
         }
@@ -54,9 +58,25 @@ class Conference
         return $this->date;
     }
 
+    public function getPrice()
+    {
+        return $this->price->getPrice();
+    }
+
+    public function getSpeakers()
+    {
+        return $this->speakers;
+    }
+
+    public function getReservations()
+    {
+        return $this->reservations;
+    }
+
     private function ensureConferenceHasNotBeenReachedMaxAttendees()
     {
-        if ((1 + count($this->attendees)) > $this->maxAttendees) {
+        if ((1 + count($this->reservations)) > $this->maxAttendees) {
+
             throw new MaxAttendeesReached($this->maxAttendees);
         }
     }
