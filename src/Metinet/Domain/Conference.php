@@ -7,6 +7,7 @@ namespace Metinet\Domain;
  */
 class Conference
 {
+    private $id;
     private $title;
     private $maxAttendees;
     private $location;
@@ -15,9 +16,10 @@ class Conference
     private $price;
     private $speakers = [];
 
-    public function __construct(string $title, int $maxAttendees, Location $location,
+    public function __construct(string $id, string $title, int $maxAttendees, Location $location,
         \DateTimeImmutable $date, Price $price, array $speakers)
     {
+        $this->id           = $id;
         $this->title        = $title;
         $this->maxAttendees = $maxAttendees;
         $this->location     = $location;
@@ -28,6 +30,7 @@ class Conference
 
     public function reserve(Reservation $reservation)
     {
+        $this->ensureConferenceHasNotBeenReachedMaxAttendees();
         $this->reservations[] = $reservation;
     }
 
@@ -41,6 +44,11 @@ class Conference
         }
 
         throw new AttendeeReservationNotFound($attendee);
+    }
+
+    public function getId()
+    {
+        return $this->id;
     }
 
     public function getTitle()

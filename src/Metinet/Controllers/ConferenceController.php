@@ -19,12 +19,56 @@ use Metinet\Domain\Reservation;
 use Metinet\Domain\Speaker;
 use Metinet\Http\Request;
 use Metinet\Http\Response;
+use Metinet\Repositories\InMemoryConferenceRepository;
 
 class ConferenceController
 {
     public function listConferences(Request $request)
     {
+        $conferenceId = uniqid();
+
         $conference = new Conference(
+            $conferenceId,
+            'La programmation orientée objet',
+            1,
+            new Location(
+                'Salle LP Metinet',
+                new PostalAddress(
+                    '21, rue Peter Fink',
+                    '01000',
+                    'Bourg-en-Bresse',
+                    'France'
+                )
+            ),
+            new \DateTimeImmutable('2016-12-06 14:00'),
+            new Price(100),
+            [new Speaker('Boris', 'Guéry', 'Blablablabla')]
+        );
+
+        $conferenceRepository = new InMemoryConferenceRepository();
+        $conferenceRepository->add($conference);
+
+        $conference = $conferenceRepository->get($conferenceId);
+
+        $conference->reserve(new Reservation(
+            new Attendee('Boris', 'Guéry', new PhoneNumber('+33686830312')),
+            PaymentTransaction::successful(uniqid(), new Price(100), PaymentMean::CREDIT_CARD)
+        ));
+
+        $conferenceRepository->update($conference);
+
+        unset($conference);
+
+        $conference = $conferenceRepository->get($conferenceId);
+
+
+        return Response::success("", ['Content-Type' => 'text/plain']);
+    }
+
+    public function test(Request $request)
+    {
+        $conference = new Conference(
+            uniqid(),
             'La programmation orientée objet',
             1,
             new Location(
