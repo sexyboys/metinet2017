@@ -47,7 +47,7 @@ class MemberController
                 $member->getId(),
                 (string) $emailConfirmationToken
             )
-        );
+        ));
     }
 
     public function confirmEmail(Request $request)
