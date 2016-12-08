@@ -39,4 +39,7 @@ foreach ($controllers as $controller) {
 }
 $callable = $resolver->resolve($request);
 $response = call_user_func($callable, $request);
+if (!$response instanceof Response) {
+    throw new RuntimeException('Action must return a Response object');
+}
 $response->send();
