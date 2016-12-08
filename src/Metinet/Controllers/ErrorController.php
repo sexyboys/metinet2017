@@ -38,4 +38,13 @@ class ErrorController
         );
         return Response::notFound($message, []);
     }
+
+    public function unauthorized(Request $request)
+    {
+        $message = sprintf(
+            "Unauthorized: %s",
+            $this->exception->getMessage()
+        );
+        return new Response(401, $message);
+    }
 }

@@ -11,19 +11,19 @@ class Response
     private $body;
     private $headers = [];
 
-    public function __construct($statusCode, $body, array $headers)
+    public function __construct($statusCode, $body, array $headers = [])
     {
         $this->statusCode = $statusCode;
         $this->body       = $body;
         $this->headers    = $headers;
     }
 
-    public static function notFound($body, array $headers)
+    public static function notFound($body, array $headers = [])
     {
         return new self(404, $body, $headers);
     }
 
-    public static function success($body, $headers)
+    public static function success($body, $headers = [])
     {
         return new self(200, $body, $headers);
     }

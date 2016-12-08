@@ -5,6 +5,7 @@
 
 namespace Metinet;
 
+use Metinet\Domain\Member\Unauthorized;
 use Metinet\Http\Response;
 use Metinet\Routing\RouteNotFound;
 
@@ -24,6 +25,11 @@ class ExceptionHandler
         if ($exception instanceof RouteNotFound) {
 
             return [$this->controller, 'routeNotFound'];
+        }
+
+        if ($exception instanceof Unauthorized) {
+
+            return [$this->controller, 'unauthorized'];
         }
 
         return [$this->controller, 'genericError'];

@@ -6,3 +6,6 @@ GET;/conferences/reserve;Metinet\Controllers\ConferenceController::reserve
 GET;/conferences/add;Metinet\Controllers\ConferenceController::addConference
 GET;/articles;Metinet\Controllers\BlogController::listArticles
 GET;/articles/view;Metinet\Controllers\BlogController::view
+GET;/auth/login;Metinet\Controllers\AuthController::login
+GET;/auth/logout;Metinet\Controllers\AuthController::logout
+GET;/auth/account;Metinet\Controllers\AuthController::account
