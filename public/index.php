@@ -16,6 +16,8 @@ use Metinet\Config\Configuration;
 use Metinet\Config\RoutesCsvLoader;
 use Metinet\Config\ChainLoader;
 use Metinet\Config\YamlLoader;
+use Metinet\Controllers\ErrorController;
+use Metinet\ExceptionHandler;
 
 $request = Request::createFromGlobals();
 
@@ -37,9 +39,16 @@ $resolver = new ControllerResolver(new RouteMatcher($routes));
 foreach ($controllers as $controller) {
     $resolver->addController($controller);
 }
-$callable = $resolver->resolve($request);
-$response = call_user_func($callable, $request);
-if (!$response instanceof Response) {
-    throw new RuntimeException('Action must return a Response object');
+try {
+    $callable = $resolver->resolve($request);
+    $response = call_user_func($callable, $request);
+    if (!$response instanceof Response) {
+        throw new RuntimeException('Action must return a Response object');
+    }
+} catch (Throwable $e) {
+    $errorController = new ErrorController();
+    $exceptionHandler = new ExceptionHandler($errorController);
+    $callable = $exceptionHandler->handle($e);
+    $response = call_user_func($callable, $request);
 }
 $response->send();
