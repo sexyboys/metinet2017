@@ -18,6 +18,7 @@ use Metinet\Config\ChainLoader;
 use Metinet\Config\YamlLoader;
 use Metinet\Controllers\ErrorController;
 use Metinet\ExceptionHandler;
+use Metinet\Controllers\BlogController;
 
 $request = Request::createFromGlobals();
 
@@ -35,6 +36,7 @@ foreach ($configuration->getSection('routes') as $route) {
 $base = $configuration->getSection('parameters')['calculator']['base'];
 $controllers[] = new CalculatorController($base);
 $controllers[] = new ConferenceController();
+$controllers[] = new BlogController();
 $resolver = new ControllerResolver(new RouteMatcher($routes));
 foreach ($controllers as $controller) {
     $resolver->addController($controller);

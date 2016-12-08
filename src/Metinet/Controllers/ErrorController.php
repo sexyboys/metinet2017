@@ -15,7 +15,7 @@ class ErrorController
      */
     private $exception;
 
-    public function setException(\Exception $e)
+    public function setException(\Throwable $e)
     {
         $this->exception = $e;
     }

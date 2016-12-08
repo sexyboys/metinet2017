@@ -17,7 +17,7 @@ class ExceptionHandler
         $this->controller = $controller;
     }
 
-    public function handle(\Exception $exception)
+    public function handle(\Throwable $exception)
     {
         $this->controller->setException($exception);
 
